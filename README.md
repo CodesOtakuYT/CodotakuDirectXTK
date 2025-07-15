@@ -3,7 +3,8 @@ Clone the repo with submodules
 Run this powershell script to configure the dev environment like adding vcpkg to the path for the current session (Optional)
 You may need to enable powershell execution first to run that script
 ```ps1
-git clone --recurse-submodules https://github.com/CodesOtakuYT/CodotakuDirectXTK
+git clone --recurse-submodules https://github.com/CodesOtakuYT/CodotakuDirectXTK.git
+cd CodotakuDirectXTK
 Set-ExecutionPolicty RemoteSigned -Scope Process
 ./setup-dev.ps1 
 ```
