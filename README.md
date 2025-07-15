@@ -1,12 +1,15 @@
 DirectX 12 (D3D12) with DirectX toolkit (DirectXTK12) modern setup, C++ 23 programming language, CMake build generator and vcpkg package manager compatible with CLion
 Clone the repo with submodules
-Run this powershell script to configure the dev environment like adding vcpkg to the path for the current session (Optional)
-You may need to enable powershell execution first to run that script
 ```ps1
 git clone --recurse-submodules https://github.com/CodesOtakuYT/CodotakuDirectXTK.git
 cd CodotakuDirectXTK
-Set-ExecutionPolicty RemoteSigned -Scope Process
-./setup-dev.ps1 
+```
+Then everytime you open the project, run this powershell script to configure the dev environment like adding vcpkg to the path for the current session (Optional)
+You may need to enable powershell execution first to run that script
+otherwise you can just use vcpkg directly (./vcpkg/vcpkg.exe) after bootstraping it (CLion would do it automatically after opening the project)
+```ps1
+Set-ExecutionPolicy RemoteSigned -Scope Process
+./setup-dev.ps1
 ```
 This is a patched version of the official microsoft template d3d12game_vcpkg from [directx-vs-templates](https://github.com/walbourn/directx-vs-templates/tree/88d18638e66f8e2cd61bc743753fd6b5bf7cd83c/d3d12game_vcpkg). patches applied:
 - Added vcpkg as a git submodule
