@@ -1,4 +1,4 @@
-DirectX 12 (D3D12) with DirectX toolkit (DirectXTK12) modern setup, C++ 23 programming language, CMake build generator and vcpkg package manager compatible with CLion
+DirectX 12 (D3D12) with DirectX toolkit ([DirectXTK12](https://github.com/microsoft/DirectXTK12/wiki/Getting-Started)) modern setup, C++ 23 programming language, CMake build generator and [vcpkg](https://vcpkg.io/) package manager compatible with [CLion](https://www.jetbrains.com/clion/)
 Clone the repo with submodules
 ```ps1
 git clone --recurse-submodules https://github.com/CodesOtakuYT/CodotakuDirectXTK.git
@@ -13,8 +13,9 @@ Set-ExecutionPolicy RemoteSigned -Scope Process
 ```
 This is a patched version of the official microsoft template d3d12game_vcpkg from [directx-vs-templates](https://github.com/walbourn/directx-vs-templates/tree/88d18638e66f8e2cd61bc743753fd6b5bf7cd83c/d3d12game_vcpkg). patches applied:
 - Added vcpkg as a git submodule
-- Added DirectXTK12 as a vcpkg port
+- Added DirectXTK12 as a vcpkg port and in cmake
 - Include DirectXTK12 headers and initialize GraphicsMemory in Game.h and Game.cpp
+- Add Visual Studio toolchain to CMake presets for CLion
 If you want to apply the patches yourself from the official templates, here is a [video tutorial](https://www.youtube.com/watch?v=Qhk7q06IZhM) I made.
 some more tips:
 - Create a Dev Drive filesystem (ReFS) for faster development comparable to linux filesystem. NTFS windows default filesystem is very inefficient for development
