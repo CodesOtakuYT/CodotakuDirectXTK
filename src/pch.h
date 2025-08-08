@@ -37,15 +37,15 @@
 
 #include <wrl/client.h>
 
-#include <directx/dxgiformat.h>
 #include <directx/d3d12.h>
 #include <directx/d3dx12.h>
+#include <directx/dxgiformat.h>
 #include <dxguids/dxguids.h>
 
 #include <dxgi1_6.h>
 
-#include <DirectXMath.h>
 #include <DirectXColors.h>
+#include <DirectXMath.h>
 
 #include <algorithm>
 #include <cassert>
@@ -69,15 +69,21 @@
 #ifdef __MINGW32__
 constexpr UINT PIX_COLOR_DEFAULT = 0;
 
-inline void PIXBeginEvent(UINT64, PCWSTR) {}
+inline void PIXBeginEvent(UINT64, PCWSTR)
+{
+}
 
-template<typename T>
-inline void PIXBeginEvent(T*, UINT64, PCWSTR) {}
+template <typename T> inline void PIXBeginEvent(T *, UINT64, PCWSTR)
+{
+}
 
-inline void PIXEndEvent() {}
+inline void PIXEndEvent()
+{
+}
 
-template<typename T>
-inline void PIXEndEvent(T*) {}
+template <typename T> inline void PIXEndEvent(T *)
+{
+}
 #else
 // WinPixEvent Runtime
 #include <pix3.h>
@@ -110,65 +116,85 @@ inline void PIXEndEvent(T*) {}
 
 namespace DX
 {
-    // Helper class for COM exceptions
-    class com_exception : public std::exception
+// Helper class for COM exceptions
+class com_exception : public std::exception
+{
+  public:
+    com_exception(HRESULT hr) noexcept : result(hr)
     {
-    public:
-        com_exception(HRESULT hr) noexcept : result(hr) {}
+    }
 
-        const char* what() const noexcept override
-        {
-            static char s_str[64] = {};
-            sprintf_s(s_str, "Failure with HRESULT of %08X", static_cast<unsigned int>(result));
-            return s_str;
-        }
-
-    private:
-        HRESULT result;
-    };
-
-    // Helper utility converts D3D API failures into exceptions.
-    inline void ThrowIfFailed(HRESULT hr)
+    const char *what() const noexcept override
     {
-        if (FAILED(hr))
-        {
-            throw com_exception(hr);
-        }
+        static char s_str[64] = {};
+        sprintf_s(s_str, "Failure with HRESULT of %08X", static_cast<unsigned int>(result));
+        return s_str;
+    }
+
+  private:
+    HRESULT result;
+};
+
+// Helper utility converts D3D API failures into exceptions.
+inline void ThrowIfFailed(HRESULT hr)
+{
+    if (FAILED(hr))
+    {
+        throw com_exception(hr);
     }
 }
+} // namespace DX
 
 #ifdef __MINGW32__
 namespace Microsoft
 {
-    namespace WRL
+namespace WRL
+{
+namespace Wrappers
+{
+class Event
+{
+  public:
+    Event() noexcept : m_handle{}
     {
-        namespace Wrappers
+    }
+    explicit Event(HANDLE h) noexcept : m_handle{h}
+    {
+    }
+    ~Event()
+    {
+        if (m_handle)
         {
-            class Event
-            {
-            public:
-                Event() noexcept : m_handle{} {}
-                explicit Event(HANDLE h) noexcept : m_handle{ h } {}
-                ~Event() { if (m_handle) { ::CloseHandle(m_handle); m_handle = nullptr; } }
-
-                void Attach(HANDLE h) noexcept
-                {
-                    if (h != m_handle)
-                    {
-                        if (m_handle) ::CloseHandle(m_handle);
-                        m_handle = h;
-                    }
-                }
-
-                bool IsValid() const { return m_handle != nullptr; }
-                HANDLE Get() const { return m_handle; }
-
-            private:
-                HANDLE m_handle;
-            };
+            ::CloseHandle(m_handle);
+            m_handle = nullptr;
         }
     }
-}
+
+    void Attach(HANDLE h) noexcept
+    {
+        if (h != m_handle)
+        {
+            if (m_handle)
+                ::CloseHandle(m_handle);
+            m_handle = h;
+        }
+    }
+
+    bool IsValid() const
+    {
+        return m_handle != nullptr;
+    }
+    HANDLE Get() const
+    {
+        return m_handle;
+    }
+
+  private:
+    HANDLE m_handle;
+};
+} // namespace Wrappers
+} // namespace WRL
+} // namespace Microsoft
 #else
 #include <wrl/event.h>
 #endif

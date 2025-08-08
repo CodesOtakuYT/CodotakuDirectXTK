@@ -1,9 +1,9 @@
-cmake_minimum_required (VERSION 3.21)
+cmake_minimum_required(VERSION 3.21)
 
-project (CodotakuDirectXTK
-  DESCRIPTION "CodotakuDirectXTK"
-  LANGUAGES CXX
-  VERSION 1.0.0)
+project(CodotakuDirectXTK
+        DESCRIPTION "CodotakuDirectXTK"
+        LANGUAGES CXX
+        VERSION 1.0.0)
 
 option(BUILD_TEST_TEMPLATE "Ignore warnings related to TODOs" OFF)
 
@@ -29,21 +29,21 @@ add_executable(${PROJECT_NAME} WIN32
         src/pch.h
 )
 
-if(NOT MINGW)
+if (NOT MINGW)
     target_precompile_headers(${PROJECT_NAME} PRIVATE src/pch.h)
-endif()
+endif ()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    d3d12.lib dxgi.lib dxguid.lib uuid.lib
-    kernel32.lib user32.lib
-    comdlg32.lib advapi32.lib shell32.lib
-    ole32.lib oleaut32.lib
-    runtimeobject.lib
+        d3d12.lib dxgi.lib dxguid.lib uuid.lib
+        kernel32.lib user32.lib
+        comdlg32.lib advapi32.lib shell32.lib
+        ole32.lib oleaut32.lib
+        runtimeobject.lib
 )
 
-if(MSVC)
+if (MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE /Wall /EHsc /GR)
-endif()
+endif ()
 
 find_package(directxmath CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE Microsoft::DirectXMath)
@@ -68,56 +68,56 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE ${COMPILER_DEFINES})
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILER_SWITCHES})
 target_link_options(${PROJECT_NAME} PRIVATE ${LINKER_SWITCHES})
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|IntelLLVM")
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|IntelLLVM")
     target_compile_options(${PROJECT_NAME} PRIVATE
-        -Wpedantic -Wextra
-        "-Wno-c++98-compat" "-Wno-c++98-compat-pedantic"
-        "-Wno-exit-time-destructors" "-Wno-global-constructors" "-Wno-language-extension-token"
-        "-Wno-missing-prototypes" "-Wno-missing-variable-declarations" "-Wno-reserved-id-macro"
-        "-Wno-float-equal" "-Wno-switch-enum" "-Wno-tautological-type-limit-compare")
+            -Wpedantic -Wextra
+            "-Wno-c++98-compat" "-Wno-c++98-compat-pedantic"
+            "-Wno-exit-time-destructors" "-Wno-global-constructors" "-Wno-language-extension-token"
+            "-Wno-missing-prototypes" "-Wno-missing-variable-declarations" "-Wno-reserved-id-macro"
+            "-Wno-float-equal" "-Wno-switch-enum" "-Wno-tautological-type-limit-compare")
 
-    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 16.0)
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 16.0)
         target_compile_options(${PROJECT_NAME} PRIVATE "-Wno-unsafe-buffer-usage")
-    endif()
+    endif ()
 
-    if(BUILD_TEST_TEMPLATE)
+    if (BUILD_TEST_TEMPLATE)
         target_compile_options(${PROJECT_NAME} PRIVATE "-Wno-unused-value")
-    endif()
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    endif ()
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     target_compile_options(${PROJECT_NAME} PRIVATE -Wno-ignored-attributes)
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     target_compile_options(${PROJECT_NAME} PRIVATE
-         "/wd4061" "/wd4365" "/wd4514" "/wd4571" "/wd4668" "/wd4710" "/wd4820" "/wd5039" "/wd5045"
-         "/wd4265" "/wd4625" "/wd4626" "/wd4986" "/wd5204" "/wd5220")
+            "/wd4061" "/wd4365" "/wd4514" "/wd4571" "/wd4668" "/wd4710" "/wd4820" "/wd5039" "/wd5045"
+            "/wd4265" "/wd4625" "/wd4626" "/wd4986" "/wd5204" "/wd5220")
 
-    if(ENABLE_CODE_ANALYSIS)
+    if (ENABLE_CODE_ANALYSIS)
         target_compile_options(${PROJECT_NAME} PRIVATE /analyze)
-    endif()
+    endif ()
 
-    if(BUILD_TEST_TEMPLATE)
+    if (BUILD_TEST_TEMPLATE)
         target_compile_options(${PROJECT_NAME} PRIVATE "/wd4555")
-    endif()
-endif()
+    endif ()
+endif ()
 
-if(WIN32)
+if (WIN32)
     target_compile_definitions(${PROJECT_NAME} PRIVATE _WIN32_WINNT=0x0A00)
-endif()
+endif ()
 
 set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E $<IF:$<BOOL:$<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>>,copy,true>
-    $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}> $<TARGET_FILE_DIR:${PROJECT_NAME}>
-    COMMAND_EXPAND_LISTS
-    )
+        COMMAND ${CMAKE_COMMAND} -E $<IF:$<BOOL:$<TARGET_RUNTIME_DLLS:${PROJECT_NAME}>>,copy,true>
+        $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+        COMMAND_EXPAND_LISTS
+)
 
-if(TARGET Microsoft::DirectX12-Agility)
-   file(MAKE_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/D3D12")
-   add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_PROPERTY:Microsoft::DirectX12-Core,IMPORTED_LOCATION_RELEASE> $<TARGET_FILE_DIR:${PROJECT_NAME}>/D3D12
-      COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_PROPERTY:Microsoft::DirectX12-Layers,IMPORTED_LOCATION_DEBUG> $<TARGET_FILE_DIR:${PROJECT_NAME}>/D3D12
-      COMMAND ${CMAKE_COMMAND} -E rm -f $<TARGET_FILE_DIR:${PROJECT_NAME}>/D3D12Core.dll
-      COMMAND ${CMAKE_COMMAND} -E rm -f $<TARGET_FILE_DIR:${PROJECT_NAME}>/d3d12SDKLayers.dll
-      COMMAND_EXPAND_LISTS
-      )
-endif()
+if (TARGET Microsoft::DirectX12-Agility)
+    file(MAKE_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/D3D12")
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_PROPERTY:Microsoft::DirectX12-Core,IMPORTED_LOCATION_RELEASE> $<TARGET_FILE_DIR:${PROJECT_NAME}>/D3D12
+            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_PROPERTY:Microsoft::DirectX12-Layers,IMPORTED_LOCATION_DEBUG> $<TARGET_FILE_DIR:${PROJECT_NAME}>/D3D12
+            COMMAND ${CMAKE_COMMAND} -E rm -f $<TARGET_FILE_DIR:${PROJECT_NAME}>/D3D12Core.dll
+            COMMAND ${CMAKE_COMMAND} -E rm -f $<TARGET_FILE_DIR:${PROJECT_NAME}>/d3d12SDKLayers.dll
+            COMMAND_EXPAND_LISTS
+    )
+endif ()
